@@ -27,7 +27,7 @@ var mediaSearcher = searchService.GetMedia();
 var media = await mediaSearcher.Search(searchRequest);
 
 // get a stream for the first track we found
-var streamingService = this.rhymbaClient.GetServices().GetContentService().GetStreaming();
+var streamingService = rhymbaClient.GetServices().GetContentService().GetStreaming();
 var getStreamRequest = new GetStreamRequest()
 {
     bitrate = 128,
@@ -41,7 +41,7 @@ var getStreamRequest = new GetStreamRequest()
 var getStreamResponse = await streamingService.GetStream(getStreamRequest);
 
 // get the album cover for this track to display
- var albumImageService = this.rhymbaClient.GetServices().GetRhymbaImageService().GetAlbumImage();
+var albumImageService = rhymbaClient.GetServices().GetRhymbaImageService().GetAlbumImage();
 var albumCoverRequest = new AlbumCoverRequest()
 {
     albumId = media.results[0].album_id,

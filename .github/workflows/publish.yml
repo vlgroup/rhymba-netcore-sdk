@@ -26,5 +26,7 @@ jobs:
       run: dotnet pack --configuration Release /p:Version=$BUILD_VERSION --no-build
     - name: Add Package Source
       run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/vlgroup/index.json"
-    - name: Push Package
+    - name: Push Package to Github
       run: dotnet nuget push **\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source "github"
+    - name: Push Package to Nuget
+      run: dotnet nuget push **\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

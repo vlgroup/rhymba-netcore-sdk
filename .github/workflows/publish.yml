@@ -23,7 +23,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release -p:Version=$BUILD_VERSION
     - name: Publish
-      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}} -List
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -k ${{secrets.NUGET_API_KEY}}
     - name: Publish to GitHub Packages
       run: echo "//ghcr.io/vlgroup/rhymba-netcore-sdk/:registry=https://ghcr.io" > ~/.npmrc && echo "//ghcr.io/:username=\$USERNAME" >> ~/.npmrc
       env:

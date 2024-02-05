@@ -6,9 +6,11 @@
 
     public abstract class ContentServiceWorker : AuthenticatedServiceWorker
     {
-        protected ContentServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret) : base("https://dispatch.mcnemanager.com/current/", rhymbaAccessToken, rhymbaAccessSecret)
-        {
+        private readonly HttpClient httpClient;
 
+        protected ContentServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret, HttpClient httpClient) : base("https://dispatch.mcnemanager.com/current/", rhymbaAccessToken, rhymbaAccessSecret)
+        {
+            this.httpClient = httpClient;
         }
 
         protected async Task<TResponseType?> CallContentService<TRequest, TResponseType>(TRequest request, string method, string? scope = null)
@@ -43,15 +45,13 @@
                 }
             }
 
-            var httpClient = new HttpClient();
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Add("access_token", contentToken.access_token);
+            this.httpClient.DefaultRequestHeaders.Add("access_hint", contentToken.access_hint);
+            this.httpClient.DefaultRequestHeaders.Add("access_req", contentToken.access_req);
 
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
-            httpClient.DefaultRequestHeaders.Add("access_token", contentToken.access_token);
-            httpClient.DefaultRequestHeaders.Add("access_hint", contentToken.access_hint);
-            httpClient.DefaultRequestHeaders.Add("access_req", contentToken.access_req);
-
-            var responseData = await httpClient.GetStringAsync(url);
+            var responseData = await this.httpClient.GetStringAsync(url);
 
             if (string.IsNullOrWhiteSpace(responseData))
             {

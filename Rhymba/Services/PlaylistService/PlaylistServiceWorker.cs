@@ -9,9 +9,11 @@
 
     public abstract class PlaylistServiceWorker : HashAuthenticatedServiceWorker
     {
-        protected PlaylistServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret, string playlistPublicKey, string playlistPrivateKey) : base("https://playlist.mcnemanager.com", rhymbaAccessToken, rhymbaAccessSecret, playlistPublicKey, playlistPrivateKey)
-        {
+        private readonly HttpClient httpClient;
 
+        protected PlaylistServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret, string playlistPublicKey, string playlistPrivateKey, HttpClient httpClient) : base("https://playlist.mcnemanager.com", rhymbaAccessToken, rhymbaAccessSecret, playlistPublicKey, playlistPrivateKey)
+        {
+            this.httpClient = httpClient;
         }
 
         protected async Task<PlaylistResponseBase<TResponseType>?> CallPlaylistService<TResponseType>(PlaylistRequestBase request, string method, string route)
@@ -25,13 +27,12 @@
 
             var url = $"{this.rhymbaUrl}{route}";
 
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
-            httpClient.DefaultRequestHeaders.Add("system_access_token", base.rhymbaAccessToken);
-            httpClient.DefaultRequestHeaders.Add("system_access_secret", base.rhymbaAccessSecret);
-            httpClient.DefaultRequestHeaders.Add("hash", requestHash);
-            httpClient.DefaultRequestHeaders.Add("access_token", request.access_token);
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Add("system_access_token", base.rhymbaAccessToken);
+            this.httpClient.DefaultRequestHeaders.Add("system_access_secret", base.rhymbaAccessSecret);
+            this.httpClient.DefaultRequestHeaders.Add("hash", requestHash);
+            this.httpClient.DefaultRequestHeaders.Add("access_token", request.access_token);
 
             var queryParams = this.CreateQueryString(request);
             var formData = this.CreatePostBody(request);
@@ -44,12 +45,12 @@
             var responseData = string.Empty;
             if (method.ToLower() == "get")
             {
-                responseData = await httpClient.GetStringAsync(url);
+                responseData = await this.httpClient.GetStringAsync(url);
             }
             else if (method.ToLower() == "post")
             {
                 httpClient.DefaultRequestHeaders.Add("Accept", "application/json; charset=utf-8");
-                var response = await httpClient.PostAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
+                var response = await this.httpClient.PostAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
                 if (response != null && response.IsSuccessStatusCode)
                 {
                     responseData = await response.Content.ReadAsStringAsync();
@@ -57,7 +58,7 @@
             }
             else if (method.ToLower() == "put")
             {
-                var response = await httpClient.PutAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
+                var response = await this.httpClient.PutAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
                 if (response != null && response.IsSuccessStatusCode)
                 {
                     responseData = await response.Content.ReadAsStringAsync();
@@ -65,7 +66,7 @@
             }
             else if (method.ToLower() == "delete")
             {
-                var response = await httpClient.DeleteAsync(url);
+                var response = await this.httpClient.DeleteAsync(url);
                 if (response != null && response.IsSuccessStatusCode)
                 {
                     responseData = await response.Content.ReadAsStringAsync();
@@ -91,13 +92,12 @@
 
             var url = $"{this.rhymbaUrl}{route}";
 
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
-            httpClient.DefaultRequestHeaders.Add("system_access_token", base.rhymbaAccessToken);
-            httpClient.DefaultRequestHeaders.Add("system_access_secret", base.rhymbaAccessSecret);
-            httpClient.DefaultRequestHeaders.Add("hash", requestHash);
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/json; charset=utf-8");
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Add("system_access_token", base.rhymbaAccessToken);
+            this.httpClient.DefaultRequestHeaders.Add("system_access_secret", base.rhymbaAccessSecret);
+            this.httpClient.DefaultRequestHeaders.Add("hash", requestHash);
+            this.httpClient.DefaultRequestHeaders.Add("Accept", "application/json; charset=utf-8");
 
             var formData = this.CreatePostBody(request);
 
@@ -107,11 +107,11 @@
                 if (loginRequest != null)
                 {
                     var authHeaderBytes = Encoding.UTF8.GetBytes($"{loginRequest.id}:{loginRequest.password}");
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {Convert.ToBase64String(authHeaderBytes)}");
+                    this.httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {Convert.ToBase64String(authHeaderBytes)}");
                 }
             }
 
-            var response = await httpClient.PostAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
+            var response = await this.httpClient.PostAsync(url, formData.Any() ? new FormUrlEncodedContent(formData) : null);
             if (response != null && response.IsSuccessStatusCode)
             {
                 var responseData = await response.Content.ReadAsStringAsync();

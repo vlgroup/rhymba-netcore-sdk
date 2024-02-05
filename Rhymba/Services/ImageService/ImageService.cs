@@ -7,7 +7,7 @@
         private AlbumImage? AlbumImage;
         private RhymbaImage? RhymbaImage;
 
-        internal ImageService() : base(string.Empty, string.Empty)
+        internal ImageService(HttpClient httpClient) : base(string.Empty, string.Empty, httpClient)
         { 
 
         }
@@ -19,7 +19,7 @@
 
         public RhymbaImage GetRhymbaImage()
         {
-            return this.RhymbaImage ??= new RhymbaImage();
+            return this.RhymbaImage ??= new RhymbaImage(base.httpClient);
         }
     }
 }

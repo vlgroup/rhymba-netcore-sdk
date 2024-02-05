@@ -21,7 +21,12 @@
 
         public ServiceManager GetServices()
         {
-            return this.ServiceManager ??= new ServiceManager(this.clientCredentials.access_token, this.clientCredentials.access_secret);
+            return this.ServiceManager ??= new ServiceManager(this.clientCredentials.access_token, this.clientCredentials.access_secret, () => { return new HttpClient(); });
+        }
+
+        public ServiceManager GetServices(Func<HttpClient> httpClientFactory)
+        {
+            return this.ServiceManager = new ServiceManager(this.clientCredentials.access_token, this.clientCredentials.access_secret, httpClientFactory);
         }
     }
 }

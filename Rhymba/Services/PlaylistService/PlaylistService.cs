@@ -4,16 +4,18 @@
 
     public class PlaylistService : PlaylistServiceWorker
     {
+        private readonly HttpClient httpClient;
+
         private Account? Account;
 
-        internal PlaylistService(string rhymbaAccessToken, string rhymbaAccessSecret, string playlistPublicKey, string playlistPrivateKey) : base(rhymbaAccessToken, rhymbaAccessSecret, playlistPublicKey, playlistPrivateKey)
+        internal PlaylistService(string rhymbaAccessToken, string rhymbaAccessSecret, string playlistPublicKey, string playlistPrivateKey, HttpClient httpClient) : base(rhymbaAccessToken, rhymbaAccessSecret, playlistPublicKey, playlistPrivateKey, httpClient)
         {
-
+            this.httpClient = httpClient;
         }
 
         public Account GetAccount()
         {
-            return this.Account ??= new Account(base.rhymbaAccessToken, base.rhymbaAccessSecret, base.playlistPublicKey, base.playlistPrivateKey);
+            return this.Account ??= new Account(base.rhymbaAccessToken, base.rhymbaAccessSecret, base.playlistPublicKey, base.playlistPrivateKey, this.httpClient);
         }
 
         public async Task<PlaylistResponseBase<CreatePlaylistResponse>?> CreatePlaylist(CreatePlaylistRequest request)

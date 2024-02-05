@@ -4,7 +4,7 @@
 
     public class Downloads : ContentServiceWorker
     {
-        internal Downloads(string accessToken, string accessSecret) : base(accessToken, accessSecret)
+        internal Downloads(string accessToken, string accessSecret, HttpClient httpClient) : base(accessToken, accessSecret, httpClient)
         {
 
         }

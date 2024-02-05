@@ -7,9 +7,11 @@
 
     public abstract class PurchaseServiceWorker : AuthenticatedServiceWorker
     {
-        protected PurchaseServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret) : base("https://purchases.mcnemanager.com/", rhymbaAccessToken, rhymbaAccessSecret)
-        {
+        private readonly HttpClient httpClient;
 
+        protected PurchaseServiceWorker(string rhymbaAccessToken, string rhymbaAccessSecret, HttpClient httpClient1) : base("https://purchases.mcnemanager.com/", rhymbaAccessToken, rhymbaAccessSecret)
+        {
+            this.httpClient = httpClient1;
         }
 
         protected async Task<TResponseType?> CallPurchaseService<TRequest, TResponseType>(TRequest request, string method)
@@ -58,19 +60,17 @@
                 }
             }
 
-            var httpClient = new HttpClient();
-
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
-            httpClient.DefaultRequestHeaders.Add("access_token", contentToken.access_token);
-            httpClient.DefaultRequestHeaders.Add("access_hint", contentToken.access_hint);
-            httpClient.DefaultRequestHeaders.Add("access_req", contentToken.access_req);
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Add("access_token", contentToken.access_token);
+            this.httpClient.DefaultRequestHeaders.Add("access_hint", contentToken.access_hint);
+            this.httpClient.DefaultRequestHeaders.Add("access_req", contentToken.access_req);
 
             var responseData = string.Empty;
             if (!string.IsNullOrWhiteSpace(postBody))
             {
-                httpClient.DefaultRequestHeaders.Add("Accept", "application/json; charset=utf-8");
-                var response = await httpClient.PostAsync(url, new StringContent(postBody));
+                this.httpClient.DefaultRequestHeaders.Add("Accept", "application/json; charset=utf-8");
+                var response = await this.httpClient.PostAsync(url, new StringContent(postBody));
                 if (response != null)
                 {
                     responseData = await response.Content.ReadAsStringAsync();
@@ -78,7 +78,7 @@
             }
             else
             {
-                responseData = await httpClient.GetStringAsync(url);
+                responseData = await this.httpClient.GetStringAsync(url);
             }
 
             if (responseData.Contains("\"value\":"))

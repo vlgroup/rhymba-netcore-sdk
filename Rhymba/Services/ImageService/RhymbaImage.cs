@@ -6,9 +6,11 @@
 
     public class RhymbaImage : ImageServiceWorker
     {
-        internal RhymbaImage() : base()
-        {
+        private readonly HttpClient httpClient;
 
+        internal RhymbaImage(HttpClient httpClient) : base()
+        {
+            this.httpClient = httpClient;
         }
 
         public string? GetImageUrl(RhymbaImageRequest request)
@@ -25,10 +27,8 @@
 
             var url = $"{this.rhymbaUrl}/new.imgup?account={request.accountId}&title={HttpUtility.UrlEncode(request.title)}&gallery={request.galleryId}&focusx={request.focusXPercent}&focusy={request.focusYPercent}&ext={request.image.Extension}";
 
-            var httpClient = new HttpClient();
-
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
 
             var multipartContent = new MultipartFormDataContent();
             using (var fileStream = request.image.OpenRead())
@@ -36,7 +36,7 @@
                 var fileContent = new StreamContent(fileStream);
                 multipartContent.Add(fileContent, "file", request.image.Name);
 
-                var response = await httpClient.PostAsync(url, multipartContent);
+                var response = await this.httpClient.PostAsync(url, multipartContent);
 
                 return await response.Content.ReadAsStringAsync();
             }

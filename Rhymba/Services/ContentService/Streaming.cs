@@ -4,7 +4,7 @@
 
     public class Streaming : ContentServiceWorker
     {
-        internal Streaming(string accessToken, string accessSecret) : base(accessToken, accessSecret)
+        internal Streaming(string accessToken, string accessSecret, HttpClient httpClient) : base(accessToken, accessSecret, httpClient)
         {
 
         }

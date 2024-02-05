@@ -4,7 +4,7 @@
 
     public class AlbumsSearcher : SearchServiceWorker
     {
-        internal AlbumsSearcher(string accessToken) : base(accessToken)
+        internal AlbumsSearcher(string accessToken, HttpClient httpClient) : base(accessToken, httpClient)
         {
 
         }

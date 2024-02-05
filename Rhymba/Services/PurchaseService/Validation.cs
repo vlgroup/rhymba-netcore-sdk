@@ -4,7 +4,7 @@
 
     public class Validation : PurchaseServiceWorker
     {
-        internal Validation(string accessToken, string accessSecret) : base(accessToken, accessSecret)
+        internal Validation(string accessToken, string accessSecret, HttpClient httpClient) : base(accessToken, accessSecret, httpClient)
         {
 
         }

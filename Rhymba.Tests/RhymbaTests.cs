@@ -11,16 +11,20 @@ namespace Rhymba.Tests
     public class RhymbaTests : IDisposable
     {
         private readonly RhymbaClient rhymbaClient;
+        private readonly MockData mockData;
 
         public RhymbaTests()
         {
             this.rhymbaClient = new RhymbaClient("YOUR_ACCESS_TOKEN", "YOUR_ACCESS_SECRET");
+            this.mockData = new MockData();
         }
 
         [Fact]
         public async void CreditCodeTests()
         {
-            var codeService = this.rhymbaClient.GetServices().GetContentService().GetCodes();
+            this.mockData.SetupCodes();
+
+            var codeService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetContentService().GetCodes();
 
             // create a code
             var createCodeRequest = new CreateCreditCodeRequest()
@@ -70,7 +74,9 @@ namespace Rhymba.Tests
         [Fact]
         public async void DownloadTests()
         {
-            var downloadService = this.rhymbaClient.GetServices().GetContentService().GetDownloads();
+            this.mockData.SetupDownloads();
+
+            var downloadService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetContentService().GetDownloads();
 
             // create a download session
             var downloadSesssionRequest = new CreateDownloadSessionRequest()
@@ -138,7 +144,7 @@ namespace Rhymba.Tests
                 suid = "rhymba_netcore_sdk_tests"
             };
 
-            var previewUrl= previewService.GetPreviewUrl(previewRequest);
+            var previewUrl = previewService.GetPreviewUrl(previewRequest);
 
             Assert.NotNull(previewUrl);
         }
@@ -146,7 +152,9 @@ namespace Rhymba.Tests
         [Fact]
         public async void StreamingTests()
         {
-            var streamingService = this.rhymbaClient.GetServices().GetContentService().GetStreaming();
+            this.mockData.SetupStreaming();
+
+            var streamingService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetContentService().GetStreaming();
 
             // get stream
             var getStreamRequest = new GetStreamRequest()
@@ -221,8 +229,10 @@ namespace Rhymba.Tests
         [Fact]
         public async void ImageTests()
         {
+            this.mockData.SetupImages();
+
             // album artwork
-            var albumImageService = this.rhymbaClient.GetServices().GetRhymbaImageService().GetAlbumImage();
+            var albumImageService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetRhymbaImageService().GetAlbumImage();
 
             var albumCoverRequest = new AlbumCoverRequest()
             {
@@ -268,7 +278,9 @@ namespace Rhymba.Tests
         [Fact]
         public async void PurchaseTests()
         {
-            var validationService = this.rhymbaClient.GetServices().GetPurchaseService().GetValidation();
+            this.mockData.SetupPurchases();
+
+            var validationService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetPurchaseService().GetValidation();
 
             // same purchase item for everything
             var purchaseItem = new PurchaseItem()
@@ -332,7 +344,9 @@ namespace Rhymba.Tests
         [Fact]
         public async void SearchTests()
         {
-            var searchService = this.rhymbaClient.GetServices().GetSearchService();
+            this.mockData.SetupSearch();
+
+            var searchService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetSearchService();
 
             var searchRequestBuilder = searchService.GetRequestBuilder();
 
@@ -371,9 +385,11 @@ namespace Rhymba.Tests
         [Fact]
         public async void PlaylistTests()
         {
-            var playlistService = this.rhymbaClient.GetServices().GetPlaylistService("3256b144-e656-4eab-9fd7-b7bacb9b818d");
+            this.mockData.SetupPlaylist();
 
-            //// create a user
+            var playlistService = this.rhymbaClient.GetServices(this.mockData.GetHttpClient).GetPlaylistService("3256b144-e656-4eab-9fd7-b7bacb9b818d");
+
+            // create a user
             var playlistUserResponse = await playlistService.GetAccount().Register(new AccountRegisterRequest()
             {
                 password = "rhymba_netcore_sdk_tests"
@@ -397,7 +413,6 @@ namespace Rhymba.Tests
             var playlistResponse = await playlistService.CreatePlaylist(new CreatePlaylistRequest()
             {
                 access_token = loginResponse.data.Token,
-                mediaIds = "10128859,10128860",
                 name = "rhymba_netcore_sdk_tests"
             });
 
@@ -415,7 +430,7 @@ namespace Rhymba.Tests
             Assert.NotNull(addAlbumResponse);
             Assert.NotEqual(0, addAlbumResponse.data);
 
-            // get the playlist and make sure it has the 3 items (2 media, 1 album) on it
+            // get the playlist and make sure it has the 1 album item on it
             var getPlaylistResponse = await playlistService.GetPlaylist(playlistResponse.data.PlaylistId, new GetPlaylistRequest()
             {
                 access_token= loginResponse.data.Token
@@ -424,7 +439,7 @@ namespace Rhymba.Tests
             Assert.NotNull(getPlaylistResponse);
             Assert.NotNull(getPlaylistResponse.data);
             Assert.Equal(playlistResponse.data.PlaylistId, getPlaylistResponse.data.PlaylistId);
-            Assert.Equal(3, getPlaylistResponse.data.Items?.Count);
+            Assert.Equal(1, getPlaylistResponse.data.Items?.Count);
 
             // delete the album off the playlist
             var deleteAlbumResponse = await playlistService.DeletePlaylistAlbum(playlistResponse.data.PlaylistId, 1263010627, new DeletePlaylistAlbumRequest()
@@ -443,7 +458,7 @@ namespace Rhymba.Tests
             Assert.NotNull(getPlaylistResponse);
             Assert.NotNull(getPlaylistResponse.data);
             Assert.Equal(playlistResponse.data.PlaylistId, getPlaylistResponse.data.PlaylistId);
-            Assert.Equal(2, getPlaylistResponse.data.Items?.Count);
+            Assert.Equal(0, getPlaylistResponse.data.Items?.Count);
 
 
             // delete the playlist

@@ -4,7 +4,7 @@
 
     public class Codes : ContentServiceWorker
     {
-        internal Codes(string accessToken, string accessSecret) : base(accessToken, accessSecret) 
+        internal Codes(string accessToken, string accessSecret, HttpClient httpClient) : base(accessToken, accessSecret, httpClient) 
         {
 
         }

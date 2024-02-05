@@ -8,24 +8,24 @@
         private ArtistsSearcher? Artists;
         private MediaSearcher? Media;
 
-        internal SearchService(string rhymbaAccessToken) : base(rhymbaAccessToken, string.Empty)
+        internal SearchService(string rhymbaAccessToken, HttpClient httpClient) : base(rhymbaAccessToken, string.Empty, httpClient)
         {
 
         }
 
         public AlbumsSearcher GetAlbums()
         {
-            return this.Albums ??= new AlbumsSearcher(this.rhymbaAccessToken);
+            return this.Albums ??= new AlbumsSearcher(base.rhymbaAccessToken, base.httpClient);
         }
 
         public ArtistsSearcher GetArtists()
         {
-            return this.Artists ??= new ArtistsSearcher(this.rhymbaAccessToken);
+            return this.Artists ??= new ArtistsSearcher(base.rhymbaAccessToken, base.httpClient);
         }
 
         public MediaSearcher GetMedia()
         {
-            return this.Media ??= new MediaSearcher(this.rhymbaAccessToken);
+            return this.Media ??= new MediaSearcher(base.rhymbaAccessToken, base.httpClient);
         }
 
         public SearchRequestBuilder GetRequestBuilder()

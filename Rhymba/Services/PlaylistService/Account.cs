@@ -4,7 +4,7 @@
 
     public class Account : PlaylistServiceWorker
     {
-        internal Account(string accessToken, string accessSecret, string publicKey, string privateKey) : base(accessToken, accessSecret, publicKey, privateKey)
+        internal Account(string accessToken, string accessSecret, string publicKey, string privateKey, HttpClient httpClient) : base(accessToken, accessSecret, publicKey, privateKey, httpClient)
         {
 
         }

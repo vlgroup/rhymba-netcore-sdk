@@ -7,9 +7,11 @@
 
     public abstract class SearchServiceWorker : AuthenticatedServiceWorker
     {
-        protected SearchServiceWorker(string rhymbaAccessToken) : base("https://search.mcnemanager.com/v4/odata", rhymbaAccessToken, string.Empty)
-        {
+        private readonly HttpClient httpClient;
 
+        protected SearchServiceWorker(string rhymbaAccessToken, HttpClient httpClient) : base("https://search.mcnemanager.com/v4/odata", rhymbaAccessToken, string.Empty)
+        {
+            this.httpClient = httpClient;
         }
 
         protected async Task<SearchResponse<T>?> Search<T>(SearchRequest request, string collection)
@@ -59,14 +61,12 @@
                 url = ODataUrl.AddQueryParam(url, "$select", request.select);
             }
 
-            var httpClient = new HttpClient();
+            this.httpClient.DefaultRequestHeaders.Clear();
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
+            this.httpClient.DefaultRequestHeaders.Add("access_token", this.rhymbaAccessToken);
+            this.httpClient.DefaultRequestHeaders.Add("full_search", request.full_search.ToString());
 
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "rhymba_net_sdk");
-            httpClient.DefaultRequestHeaders.Add("access_token", this.rhymbaAccessToken);
-            httpClient.DefaultRequestHeaders.Add("full_search", request.full_search.ToString());
-
-            await using var responseStream = await httpClient.GetStreamAsync(url);
+            await using var responseStream = await this.httpClient.GetStreamAsync(url);
 
             var odataValue = await JsonSerializer.DeserializeAsync<ODataValueWrapper<T[]>>(responseStream, new JsonSerializerOptions() { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString | System.Text.Json.Serialization.JsonNumberHandling.WriteAsString });
             if (odataValue != null)

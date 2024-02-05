@@ -4,7 +4,7 @@
 
     public class MediaSearcher : SearchServiceWorker
     {
-        internal MediaSearcher(string accessToken) : base(accessToken)
+        internal MediaSearcher(string accessToken, HttpClient httpClient) : base(accessToken, httpClient)
         {
 
         }

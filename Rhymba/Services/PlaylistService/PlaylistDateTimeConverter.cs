@@ -11,17 +11,23 @@
             if (reader.TokenType == JsonTokenType.String)
             {
                 var dateString = reader.GetString() ?? string.Empty;
-                // Extract ticks from the string
-                var ticksString = dateString.Substring("/Date(".Length, dateString.Length - "/Date(".Length - 2);
-                var ticks = long.Parse(ticksString);
+                if (!string.IsNullOrWhiteSpace(dateString))
+                {
+                    if (DateTime.TryParse(dateString, out var dateTime))
+                    {
+                        return dateTime;
+                    }
 
-                // Convert ticks to DateTime
-                var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(ticks);
+                    var ticksString = dateString.Substring("/Date(".Length, dateString.Length - "/Date(".Length - 2);
+                    var ticks = long.Parse(ticksString);
 
-                return dateTime;
+                    dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(ticks);
+
+                    return dateTime;
+                }
             }
 
-            throw new JsonException($"Unable to parse the date.");
+            return DateTime.MinValue;
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)

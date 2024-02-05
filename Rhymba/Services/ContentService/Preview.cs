@@ -4,7 +4,7 @@
 
     public class Preview : ContentServiceWorker
     {
-        internal Preview(string accessToken) : base(accessToken, string.Empty)
+        internal Preview(string accessToken, HttpClient httpClient) : base(accessToken, string.Empty, httpClient)
         {
 
         }

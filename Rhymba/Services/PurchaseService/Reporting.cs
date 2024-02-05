@@ -4,7 +4,7 @@
 
     public class Reporting : PurchaseServiceWorker
     {
-        internal Reporting(string accessToken, string accessSecret) : base(accessToken, accessSecret)
+        internal Reporting(string accessToken, string accessSecret, HttpClient httpClient) : base(accessToken, accessSecret, httpClient)
         {
 
         }
